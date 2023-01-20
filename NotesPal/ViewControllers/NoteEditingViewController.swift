@@ -1,5 +1,5 @@
 //
-//  NoteCreationViewController.swift
+//  NoteEditingViewController.swift
 //  NotesPal
 //
 //  Created by Артём Харченко on 19.01.2023.
@@ -7,8 +7,10 @@
 
 import UIKit
 
-class NoteCreationViewController: UIViewController {
+class NoteEditingViewController: UIViewController {
 
+    var note = Note()
+    
     lazy var textView: UITextView = {
         let textView = UITextView()
         //настроить
@@ -18,6 +20,7 @@ class NoteCreationViewController: UIViewController {
     //MARK: - ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
+        textView.text = note.text
         view.backgroundColor = .white
         setupNavBar()
         setupTextView()
@@ -28,12 +31,21 @@ class NoteCreationViewController: UIViewController {
     private func setupTextView() {
         view.addSubview(textView)
         textView.font = UIFont(name: "Arial", size: 20)
-        
+    }
+    
+    private func updateTextView() {
+        note.lastUpdated = Date()
+        StorageManager.shared.saveContext()
+        //delegate.refreshNotes()
+    }
+    
+    private func deleteNote() {
+//        delegate.deleteNote(with: note.id)
+//        StorageManager.shared.deleteNote(note)
     }
     
     private func setupNavBar() {
         let navBarAppearance = UINavigationBarAppearance()
-//        navBarAppearance.shadowColor = .clear
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
         
@@ -49,9 +61,20 @@ class NoteCreationViewController: UIViewController {
     }
     
 }
+//MARK: - UITextViewDelegate
+extension NoteEditingViewController: UITextViewDelegate {
+    func textViewDidEndEditing(_ textView: UITextView) {
+        note.text = textView.text
+//        if note.title.isEmpty ?? true { мб текст? а не тайтл
+//            deleteNotes()
+//        } else {
+//            updateNotes()
+//        }
+    }
+}
 
 //MARK: - Constraints
-extension NoteCreationViewController {
+extension NoteEditingViewController {
     private func setConstraints() {
         textView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
