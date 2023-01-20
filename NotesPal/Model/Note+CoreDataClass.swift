@@ -15,7 +15,7 @@ public class Note: NSManagedObject {
         return text.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: .newlines).first ?? "" // returns the first line of the text
     }
     
-    var description: String {
+    var desc: String {
         var lines = text.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: .newlines)
         lines.removeFirst()
         return "\(lastUpdated.format()) \(lines.first ?? "")" // return second line

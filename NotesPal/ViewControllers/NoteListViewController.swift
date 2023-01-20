@@ -7,9 +7,13 @@
 
 import UIKit
 
+protocol NotesListDelegate: AnyObject {
+    func refreshNotes()
+}
+
 class NoteListViewController: UIViewController {
     
-    var allNotes: [Note] = [] //убрать отсюда, будет все стирать каждый раз?
+    var allNotes: [Note] = []
 
     private let plusView = PlusView()
     
@@ -25,17 +29,29 @@ class NoteListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        fetchNotes()
         setupNavigationBar()
         setupSearchBar()
         setupTableView()
         setupPlusView()
         setConstraints()
-//        fetchNotes()
     }
     
     //MARK: - Functions
     private func fetchNotes() {
-        allNotes = StorageManager.shared.fetchNotes()
+        StorageManager.shared.fetchNotes { result in
+            switch result {
+            case .success(let notes):
+                self.allNotes = notes
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func indexForNote(id: UUID, in list: [Note]) -> IndexPath {
+        let row = Int(list.firstIndex(where: { $0.id == id }) ?? 0)
+        return IndexPath(row: row, section: 0)
     }
     
     private func setupNavigationBar() {
@@ -57,7 +73,7 @@ class NoteListViewController: UIViewController {
     
     private func setupPlusView() {
         view.addSubview(plusView)
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(createNote))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(plusButtonPressed))
         plusView.addGestureRecognizer(tapGesture)
     }
     
@@ -68,27 +84,47 @@ class NoteListViewController: UIViewController {
         navigationItem.searchController = searchController
         definesPresentationContext = true
     }
+    
+    @objc private func plusButtonPressed() {
+        goToEditNote(createNote())
+    }
+    
+    private func goToEditNote(_ note: Note) {
+        let noteCreationVC = NoteEditingViewController()
+        noteCreationVC.note = note
+        noteCreationVC.delegate = self
+        navigationController?.pushViewController(noteCreationVC, animated: true)
+        
+    }
+    
+    private func createNote() -> Note {
+        let note = StorageManager.shared.createNote()
+        allNotes.insert(note, at: 0)
+        tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
+        return note
+    }
 }
 
 //MARK: - UITableViewDataSource,UITableViewDelegate
 extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        15
+        allNotes.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        60
+        70
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? NoteListTableViewCell else { return UITableViewCell() }
-//        cell.configure(note: <#T##Note#>)
+        cell.configure(note: allNotes[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        tableView.reloadRows(at: [indexPath], with: .automatic)
+        goToEditNote(allNotes[indexPath.row])
+//        tableView.deselectRow(at: indexPath, animated: true)
+//        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -96,17 +132,6 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
             tableView.deleteRows(at: [indexPath], with: .automatic)
 //            StorageManager.shared.deleteNote(<#T##note: Note##Note#>) //обдумать удаление
         }
-    }
-    
-    @objc private func createNote() -> Note {
-        let note = StorageManager.shared.createNote()
-        let NoteCreationVC = NoteEditingViewController() //должен быть тут этот переход?
-        
-        allNotes.insert(note, at: 0)
-        tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
-        
-        navigationController?.pushViewController(NoteCreationVC, animated: true)
-        return note
     }
 }
 
@@ -139,6 +164,16 @@ extension NoteListViewController: UISearchResultsUpdating, UISearchBarDelegate {
     
     func filterCounterForSearchText(_ searchText: String) {
         
+    }
+}
+
+//MARK: - ListNotesDelegate
+extension NoteListViewController: NotesListDelegate {
+    
+    func refreshNotes() {
+        print(#function)
+        allNotes = allNotes.sorted { $0.lastUpdated > $1.lastUpdated }
+        tableView.reloadData()
     }
 }
 

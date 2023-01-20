@@ -11,17 +11,18 @@ class NoteEditingViewController: UIViewController {
 
     var note = Note()
     
+    weak var delegate: NotesListDelegate?
+    
     lazy var textView: UITextView = {
         let textView = UITextView()
-        //настроить
         return textView
     }()
     
     //MARK: - ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-        textView.text = note.text
         view.backgroundColor = .white
+        textView.text = note.text
         setupNavBar()
         setupTextView()
         setConstraints()
@@ -33,15 +34,8 @@ class NoteEditingViewController: UIViewController {
         textView.font = UIFont(name: "Arial", size: 20)
     }
     
-    private func updateTextView() {
-        note.lastUpdated = Date()
-        StorageManager.shared.saveContext()
-        //delegate.refreshNotes()
-    }
-    
-    private func deleteNote() {
-//        delegate.deleteNote(with: note.id)
-//        StorageManager.shared.deleteNote(note)
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
     
     private func setupNavBar() {
@@ -56,20 +50,34 @@ class NoteEditingViewController: UIViewController {
         )
     }
     
+    private func updateTextView() {
+        note.lastUpdated = Date()
+        StorageManager.shared.saveContext()
+        delegate?.refreshNotes()
+    }
+    
+    //    private func deleteNote() {
+    //        delegate?.deleteNote(with: note.id)
+    //        StorageManager.shared.deleteNote(note)
+    //    }
+    
     @objc private func donePressed() {
         navigationController?.popViewController(animated: true)
+        print(textView.text)
+        updateTextView()
     }
     
 }
 //MARK: - UITextViewDelegate
 extension NoteEditingViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
+        print("\(String(describing: textView.text))")
         note.text = textView.text
-//        if note.title.isEmpty ?? true { мб текст? а не тайтл
-//            deleteNotes()
-//        } else {
-//            updateNotes()
-//        }
+        if note.title.isEmpty {
+            print("should delete this note")
+        } else {
+            updateTextView()
+        }
     }
 }
 

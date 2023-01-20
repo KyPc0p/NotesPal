@@ -28,11 +28,18 @@ class StorageManager {
     }
 
     // MARK: - CRUD
-    func fetchNotes() -> [Note] { //read
-        let request = Note.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(keyPath: \Note.lastUpdated, ascending: false)
-        request.sortDescriptors = [sortDescriptor]
-        return (try? viewContext.fetch(request)) ?? [] //обработать ошибку
+    func fetchNotes(completion: (Result<[Note], Error>) -> Void) { //read
+        let fetchRequest = Note.fetchRequest()
+        
+        do {
+            let sortDescriptor = NSSortDescriptor(keyPath: \Note.lastUpdated, ascending: false)
+            fetchRequest.sortDescriptors = [sortDescriptor]
+            
+            let notes = try viewContext.fetch(fetchRequest)
+            completion(.success(notes))
+        } catch let error {
+            completion(.failure(error))
+        }
     }
     
     func createNote() -> Note {
@@ -44,7 +51,7 @@ class StorageManager {
         return note
     }
     
-    func update(){
+    func update(_ note: Note) { //??
         saveContext()
     }
     
