@@ -28,7 +28,7 @@ class StorageManager {
     }
 
     // MARK: - CRUD
-    func fetchNotes(completion: (Result<[Note], Error>) -> Void) { //read
+    func read(completion: (Result<[Note], Error>) -> Void) { //read
         let fetchRequest = Note.fetchRequest()
         
         do {
@@ -42,7 +42,7 @@ class StorageManager {
         }
     }
     
-    func createNote() -> Note {
+    func create() -> Note {
         let note = Note(context: viewContext)
         note.id = UUID()
         note.text = ""
@@ -55,7 +55,7 @@ class StorageManager {
         saveContext()
     }
     
-    func deleteNote(_ note: Note){
+    func delete(_ note: Note) {
         viewContext.delete(note)
         saveContext()
     }
@@ -64,16 +64,6 @@ class StorageManager {
 //        let task = Task(context: viewContext)
 //        task.title = taskName
 //        completion(task)
-//        saveContext()
-//    }
-//
-//    func update(_ task: Task, newName: String) {
-//        task.title = newName
-//        saveContext()
-//    }
-//
-//    func delete(_ task: Task) {
-//        viewContext.delete(task)
 //        saveContext()
 //    }
 

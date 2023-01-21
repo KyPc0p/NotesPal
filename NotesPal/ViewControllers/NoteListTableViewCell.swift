@@ -8,6 +8,8 @@
 import UIKit
 
 class NoteListTableViewCell: UITableViewCell {
+    
+    static let identifier = "NoteListTableViewCell"
 
     let title: UILabel = {
         let title = UILabel()
@@ -32,7 +34,7 @@ class NoteListTableViewCell: UITableViewCell {
     
     func configure(note: Note) {
         title.text = note.title
-        descriprion.text = note.desc
+        descriprion.text = note.titleDescription
     }
 
 }

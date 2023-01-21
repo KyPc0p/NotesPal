@@ -14,7 +14,7 @@ protocol NotesListDelegate: AnyObject {
 
 class NoteListViewController: UIViewController {
     
-    var allNotes: [Note] = []
+    private var allNotes: [Note] = []
 
     private let plusView = PlusView()
     
@@ -22,7 +22,7 @@ class NoteListViewController: UIViewController {
     
     private let tableView: UITableView = {
         let tableView = UITableView()
-        tableView.register(NoteListTableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(NoteListTableViewCell.self, forCellReuseIdentifier: NoteListTableViewCell.identifier)
         return tableView
     }()
     
@@ -40,7 +40,7 @@ class NoteListViewController: UIViewController {
     
     //MARK: - Functions
     private func fetchNotes() {
-        StorageManager.shared.fetchNotes { result in
+        StorageManager.shared.read { result in
             switch result {
             case .success(let notes):
                 self.allNotes = notes
@@ -48,11 +48,6 @@ class NoteListViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
-    }
-    
-    private func indexForNote(id: UUID, in list: [Note]) -> IndexPath {
-        let row = Int(list.firstIndex(where: { $0.id == id }) ?? 0)
-        return IndexPath(row: row, section: 0)
     }
     
     private func setupNavigationBar() {
@@ -98,10 +93,15 @@ class NoteListViewController: UIViewController {
     }
     
     private func createNote() -> Note {
-        let note = StorageManager.shared.createNote()
+        let note = StorageManager.shared.create()
         allNotes.insert(note, at: 0)
         tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
         return note
+    }
+    
+    private func indexForNote(id: UUID, in list: [Note]) -> IndexPath {
+        let row = Int(list.firstIndex(where: { $0.id == id }) ?? 0)
+        return IndexPath(row: row, section: 0)
     }
 }
 
@@ -112,11 +112,11 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        70
+        80
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? NoteListTableViewCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: NoteListTableViewCell.identifier, for: indexPath) as? NoteListTableViewCell else { return UITableViewCell() }
         cell.configure(note: allNotes[indexPath.row])
         return cell
     }
@@ -131,8 +131,19 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
         if editingStyle == .delete {
             let note = allNotes.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
-            StorageManager.shared.deleteNote(note) //обдумать удаление
+            StorageManager.shared.delete(note)
         }
+    }
+}
+
+//MARK: - UISearchResultsUpdating
+extension NoteListViewController: UISearchResultsUpdating, UISearchBarDelegate {
+    func updateSearchResults(for searchController: UISearchController) {
+        
+    }
+    
+    func filterCounterForSearchText(_ searchText: String) {
+        
     }
 }
 
@@ -157,30 +168,17 @@ extension NoteListViewController {
     }
 }
 
-//MARK: - UISearchResultsUpdating
-extension NoteListViewController: UISearchResultsUpdating, UISearchBarDelegate {
-    func updateSearchResults(for searchController: UISearchController) {
-        
-    }
-    
-    func filterCounterForSearchText(_ searchText: String) {
-        
-    }
-}
-
 //MARK: - ListNotesDelegate
 extension NoteListViewController: NotesListDelegate {
     
     func refreshNotes() {
-        print(#function)
         allNotes = allNotes.sorted { $0.lastUpdated > $1.lastUpdated }
         tableView.reloadData()
     }
     
     func deleteNote(with id: UUID) {
         let indexPath = indexForNote(id: id, in: allNotes)
-        tableView.deleteRows(at: [indexPath], with: .automatic)
         allNotes.remove(at: indexPath.row)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
     }
 }
-

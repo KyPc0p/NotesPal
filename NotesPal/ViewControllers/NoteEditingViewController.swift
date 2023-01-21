@@ -9,7 +9,7 @@ import UIKit
 
 class NoteEditingViewController: UIViewController {
 
-    var note = Note()
+    var note: Note!
     
     weak var delegate: NotesListDelegate?
     
@@ -35,14 +35,6 @@ class NoteEditingViewController: UIViewController {
         textView.font = UIFont(name: "Arial", size: 20)
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        textView.becomeFirstResponder()
-    }
-    
     private func setupNavBar() {
         let navBarAppearance = UINavigationBarAppearance()
         navigationController?.navigationBar.standardAppearance = navBarAppearance
@@ -62,14 +54,22 @@ class NoteEditingViewController: UIViewController {
         delegate?.refreshNotes()
     }
     
-    private func deleteNote() {
-        delegate?.deleteNote(with: note.id)
-//        StorageManager.shared.deleteNote(note)
+    override func viewDidAppear(_ animated: Bool) {
+        textView.becomeFirstResponder()
     }
     
     @objc private func donePressed() {
         navigationController?.popViewController(animated: true)
         updateTextView()
+    }
+    
+    private func deleteNote() {
+        delegate?.deleteNote(with: note.id)
+        StorageManager.shared.delete(note)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
     
 }
@@ -79,10 +79,8 @@ extension NoteEditingViewController: UITextViewDelegate {
         note.text = textView.text
         if note.title.isEmpty {
             deleteNote()
-            print("delete")
         } else {
             updateTextView()
-            print("Update")
         }
     }
 }
