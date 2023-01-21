@@ -30,12 +30,17 @@ class NoteEditingViewController: UIViewController {
     
     //MARK: - Functions
     private func setupTextView() {
+        textView.delegate = self
         view.addSubview(textView)
         textView.font = UIFont(name: "Arial", size: 20)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        textView.becomeFirstResponder()
     }
     
     private func setupNavBar() {
@@ -51,19 +56,19 @@ class NoteEditingViewController: UIViewController {
     }
     
     private func updateTextView() {
+        note.text = textView.text
         note.lastUpdated = Date()
         StorageManager.shared.saveContext()
         delegate?.refreshNotes()
     }
     
-    //    private func deleteNote() {
-    //        delegate?.deleteNote(with: note.id)
-    //        StorageManager.shared.deleteNote(note)
-    //    }
+    private func deleteNote() {
+        delegate?.deleteNote(with: note.id)
+//        StorageManager.shared.deleteNote(note)
+    }
     
     @objc private func donePressed() {
         navigationController?.popViewController(animated: true)
-        print(textView.text)
         updateTextView()
     }
     
@@ -71,15 +76,17 @@ class NoteEditingViewController: UIViewController {
 //MARK: - UITextViewDelegate
 extension NoteEditingViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
-        print("\(String(describing: textView.text))")
         note.text = textView.text
         if note.title.isEmpty {
-            print("should delete this note")
+            deleteNote()
+            print("delete")
         } else {
             updateTextView()
+            print("Update")
         }
     }
 }
+
 
 //MARK: - Constraints
 extension NoteEditingViewController {

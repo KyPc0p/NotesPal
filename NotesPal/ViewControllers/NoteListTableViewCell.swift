@@ -11,7 +11,6 @@ class NoteListTableViewCell: UITableViewCell {
 
     let title: UILabel = {
         let title = UILabel()
-        title.font
         return title
     }()
 
@@ -19,13 +18,21 @@ class NoteListTableViewCell: UITableViewCell {
         let descriprion = UILabel()
         return descriprion
     }()
-
-    func configure(note: Note) {
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         addSubview(title)
         addSubview(descriprion)
+        setConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(note: Note) {
         title.text = note.title
         descriprion.text = note.desc
-        setConstraints()
     }
 
 }
@@ -43,7 +50,7 @@ extension NoteListTableViewCell {
         descriprion.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             descriprion.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 5),
-            descriprion.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+            descriprion.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             descriprion.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
         ])
     }

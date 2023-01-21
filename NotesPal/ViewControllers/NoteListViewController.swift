@@ -9,6 +9,7 @@ import UIKit
 
 protocol NotesListDelegate: AnyObject {
     func refreshNotes()
+    func deleteNote(with id: UUID)
 }
 
 class NoteListViewController: UIViewController {
@@ -94,7 +95,6 @@ class NoteListViewController: UIViewController {
         noteCreationVC.note = note
         noteCreationVC.delegate = self
         navigationController?.pushViewController(noteCreationVC, animated: true)
-        
     }
     
     private func createNote() -> Note {
@@ -123,14 +123,15 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         goToEditNote(allNotes[indexPath.row])
-//        tableView.deselectRow(at: indexPath, animated: true)
-//        tableView.reloadRows(at: [indexPath], with: .automatic)
+        tableView.deselectRow(at: indexPath, animated: true)
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            let note = allNotes.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
-//            StorageManager.shared.deleteNote(<#T##note: Note##Note#>) //обдумать удаление
+            StorageManager.shared.deleteNote(note) //обдумать удаление
         }
     }
 }
@@ -174,6 +175,12 @@ extension NoteListViewController: NotesListDelegate {
         print(#function)
         allNotes = allNotes.sorted { $0.lastUpdated > $1.lastUpdated }
         tableView.reloadData()
+    }
+    
+    func deleteNote(with id: UUID) {
+        let indexPath = indexForNote(id: id, in: allNotes)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+        allNotes.remove(at: indexPath.row)
     }
 }
 

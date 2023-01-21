@@ -11,8 +11,7 @@ extension Date {
     func format() -> String {
         let formatter = DateFormatter()
         if Calendar.current.isDateInToday(self) {
-            formatter.dateFormat = "h:mm a"
-            
+            formatter.dateFormat = "h:mm"
         } else {
             formatter.dateFormat = "dd/MM/yy"
         }
