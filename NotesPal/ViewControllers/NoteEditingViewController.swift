@@ -85,7 +85,6 @@ extension NoteEditingViewController: UITextViewDelegate {
     }
 }
 
-
 //MARK: - Constraints
 extension NoteEditingViewController {
     private func setConstraints() {

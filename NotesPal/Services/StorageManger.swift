@@ -51,10 +51,6 @@ class StorageManager {
         return note
     }
     
-    func update(_ note: Note) { //??
-        saveContext()
-    }
-    
     func delete(_ note: Note) {
         viewContext.delete(note)
         saveContext()

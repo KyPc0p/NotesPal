@@ -15,6 +15,15 @@ protocol NotesListDelegate: AnyObject {
 class NoteListViewController: UIViewController {
     
     private var allNotes: [Note] = []
+    private var filtredNotes: [Note] = []
+    
+    private var searchBarIsEmty: Bool {
+        guard let text = searchController.searchBar.text else { return false}
+        return text.isEmpty
+    }
+    private var isFiltering: Bool {
+        searchController.isActive && !searchBarIsEmty
+    }
 
     private let plusView = PlusView()
     
@@ -38,18 +47,7 @@ class NoteListViewController: UIViewController {
         setConstraints()
     }
     
-    //MARK: - Functions
-    private func fetchNotes() {
-        StorageManager.shared.read { result in
-            switch result {
-            case .success(let notes):
-                self.allNotes = notes
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-    }
-    
+    //MARK: - UISetup
     private func setupNavigationBar() {
         title = "Notes"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -75,12 +73,14 @@ class NoteListViewController: UIViewController {
     
     private func setupSearchBar() {
         searchController.searchResultsUpdater = self
+        searchController.showsSearchResultsController = true
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search..."
         navigationItem.searchController = searchController
         definesPresentationContext = true
     }
     
+    //MARK: - Functions
     @objc private func plusButtonPressed() {
         goToEditNote(createNote())
     }
@@ -99,6 +99,17 @@ class NoteListViewController: UIViewController {
         return note
     }
     
+    private func fetchNotes() {
+        StorageManager.shared.read { result in
+            switch result {
+            case .success(let notes):
+                self.allNotes = notes
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     private func indexForNote(id: UUID, in list: [Note]) -> IndexPath {
         let row = Int(list.firstIndex(where: { $0.id == id }) ?? 0)
         return IndexPath(row: row, section: 0)
@@ -108,7 +119,10 @@ class NoteListViewController: UIViewController {
 //MARK: - UITableViewDataSource,UITableViewDelegate
 extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        allNotes.count
+        if isFiltering {
+            return filtredNotes.count
+        }
+        return allNotes.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -117,19 +131,33 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: NoteListTableViewCell.identifier, for: indexPath) as? NoteListTableViewCell else { return UITableViewCell() }
+        if isFiltering {
+            cell.configure(note: filtredNotes[indexPath.row])
+            return cell
+        }
         cell.configure(note: allNotes[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        goToEditNote(allNotes[indexPath.row])
+        if isFiltering {
+            goToEditNote(filtredNotes[indexPath.row])
+        } else {
+            goToEditNote(allNotes[indexPath.row])
+        }
         tableView.deselectRow(at: indexPath, animated: true)
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let note = allNotes.remove(at: indexPath.row)
+            let note: Note
+            
+            if isFiltering {
+                note = filtredNotes.remove(at: indexPath.row)
+            } else {
+                note = allNotes.remove(at: indexPath.row)
+            }
             tableView.deleteRows(at: [indexPath], with: .automatic)
             StorageManager.shared.delete(note)
         }
@@ -139,11 +167,15 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
 //MARK: - UISearchResultsUpdating
 extension NoteListViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {
-        
+        filterCounterForSearchText(searchController.searchBar.text!)
     }
     
     func filterCounterForSearchText(_ searchText: String) {
+        filtredNotes = allNotes.filter({ (notes: Note) -> Bool in
+            notes.text.lowercased().contains(searchText.lowercased())
+        })
         
+        tableView.reloadData()
     }
 }
 
