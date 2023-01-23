@@ -51,7 +51,7 @@ class NoteListViewController: UIViewController {
     //MARK: - UISetup
     private func setupNavigationBar() {
         title = "Notes"
-        navigationController?.navigationBar.prefersLargeTitles = true
+//        navigationController?.navigationBar.prefersLargeTitles = true
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
         navBarAppearance.shadowColor = .clear
@@ -158,9 +158,7 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
             
             if isFiltering {
                 note = filtredNotes.remove(at: indexPath.row)
-                print("1111111")
             } else {
-                print("2222222")
                 note = allNotes.remove(at: indexPath.row)
             }
             tableView.deleteRows(at: [indexPath], with: .automatic)

@@ -15,6 +15,8 @@ class NoteEditingViewController: UIViewController {
     
     lazy var textView: UITextView = {
         let textView = UITextView()
+        textView.isScrollEnabled = true
+        
         return textView
     }()
     
@@ -22,7 +24,6 @@ class NoteEditingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        textView.text = note.text
         setupNavBar()
         setupTextView()
         setConstraints()
@@ -30,27 +31,28 @@ class NoteEditingViewController: UIViewController {
     
     //MARK: - Functions
     private func setupTextView() {
-        textView.delegate = self
+        textView.text = note.text
         view.addSubview(textView)
         textView.font = UIFont(name: "Arial", size: 20)
+//        textView.delegate = self  //Do I really need it?
     }
     
     private func setupNavBar() {
-        let navBarAppearance = UINavigationBarAppearance()
-        navigationController?.navigationBar.standardAppearance = navBarAppearance
-        navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
+        
+        
         
         let doneButton = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,
-            action: #selector(donePressed)
+            action: #selector(doneButtonPressed)
         )
         
         let trashButton = UIBarButtonItem(
             barButtonSystemItem: .trash ,
             target: self,
-            action: #selector(trashPressed)
+            action: #selector(trashButtonPressed)
         )
+        trashButton.tintColor = .red
         
         navigationItem.rightBarButtonItems = [trashButton, doneButton]
     }
@@ -63,7 +65,7 @@ class NoteEditingViewController: UIViewController {
         )
         
         let okAction = UIAlertAction(title: "OK", style: .default) { _ in
-          //delete Note
+            self.deleteNote()
             self.navigationController?.popViewController(animated: true)
         }
         
@@ -81,12 +83,12 @@ class NoteEditingViewController: UIViewController {
         delegate?.refreshNotes()
     }
     
-    @objc private func donePressed() {
-        updateTextView()
-        navigationController?.popViewController(animated: true)
+    @objc private func doneButtonPressed() {
+//        textView.endEditing(true)
+        finalNoteCheck()
     }
     
-    @objc private func trashPressed() {
+    @objc private func trashButtonPressed() {
         showAlert()
     }
     
@@ -95,27 +97,28 @@ class NoteEditingViewController: UIViewController {
         StorageManager.shared.delete(note)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        textView.becomeFirstResponder()
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
-}
-//MARK: - UITextViewDelegate
-extension NoteEditingViewController: UITextViewDelegate {
-    func textViewDidEndEditing(_ textView: UITextView) {
+    @objc func finalNoteCheck() {
         note.text = textView.text
         if note.title.isEmpty {
-            deleteNote()
             print("delete Note")
+            deleteNote()
         } else {
             updateTextView()
             print("update Note")
         }
+        
+        navigationController?.popViewController(animated: true)
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if note.title.isEmpty {
+            textView.becomeFirstResponder()
+        }
+    }
+}
+
+extension NoteEditingViewController: UITextViewDelegate {
+    
 }
 
 //MARK: - Constraints

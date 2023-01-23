@@ -55,13 +55,6 @@ class StorageManager {
         viewContext.delete(note)
         saveContext()
     }
-    
-//    func create(_ taskName: String, completion: (Task) -> Void) {
-//        let task = Task(context: viewContext)
-//        task.title = taskName
-//        completion(task)
-//        saveContext()
-//    }
 
     // MARK: - Core Data Saving support
     func saveContext() {
