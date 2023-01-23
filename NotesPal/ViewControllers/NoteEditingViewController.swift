@@ -40,11 +40,38 @@ class NoteEditingViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        let doneButton = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,
             action: #selector(donePressed)
         )
+        
+        let trashButton = UIBarButtonItem(
+            barButtonSystemItem: .trash ,
+            target: self,
+            action: #selector(trashPressed)
+        )
+        
+        navigationItem.rightBarButtonItems = [trashButton, doneButton]
+    }
+    
+    private func showAlert() {
+        let alert = UIAlertController(
+            title: "Delete Note",
+            message: "Do you want to delete this Note?",
+            preferredStyle: .alert
+        )
+        
+        let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+          //delete Note
+            self.navigationController?.popViewController(animated: true)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+        
+        alert.addAction(cancelAction)
+        alert.addAction(okAction)
+        present(alert, animated: true)
     }
     
     private func updateTextView() {
@@ -54,18 +81,22 @@ class NoteEditingViewController: UIViewController {
         delegate?.refreshNotes()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        textView.becomeFirstResponder()
+    @objc private func donePressed() {
+        updateTextView()
+        navigationController?.popViewController(animated: true)
     }
     
-    @objc private func donePressed() {
-        navigationController?.popViewController(animated: true)
-        updateTextView()
+    @objc private func trashPressed() {
+        showAlert()
     }
     
     private func deleteNote() {
         delegate?.deleteNote(with: note.id)
         StorageManager.shared.delete(note)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        textView.becomeFirstResponder()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -79,8 +110,10 @@ extension NoteEditingViewController: UITextViewDelegate {
         note.text = textView.text
         if note.title.isEmpty {
             deleteNote()
+            print("delete Note")
         } else {
             updateTextView()
+            print("update Note")
         }
     }
 }

@@ -17,17 +17,18 @@ class NoteListViewController: UIViewController {
     private var allNotes: [Note] = []
     private var filtredNotes: [Note] = []
     
+    private let searchController = UISearchController(searchResultsController: nil)
+    
     private var searchBarIsEmty: Bool {
-        guard let text = searchController.searchBar.text else { return false}
+        guard let text = searchController.searchBar.text else { return false }
         return text.isEmpty
     }
+    
     private var isFiltering: Bool {
         searchController.isActive && !searchBarIsEmty
     }
 
     private let plusView = PlusView()
-    
-    private let searchController = UISearchController(searchResultsController: nil)
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -73,11 +74,11 @@ class NoteListViewController: UIViewController {
     
     private func setupSearchBar() {
         searchController.searchResultsUpdater = self
-        searchController.showsSearchResultsController = true
+        searchController.showsSearchResultsController = true  //?
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search..."
         navigationItem.searchController = searchController
-        definesPresentationContext = true
+        definesPresentationContext = true //?
     }
     
     //MARK: - Functions
@@ -131,10 +132,12 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: NoteListTableViewCell.identifier, for: indexPath) as? NoteListTableViewCell else { return UITableViewCell() }
+        
         if isFiltering {
             cell.configure(note: filtredNotes[indexPath.row])
             return cell
         }
+        
         cell.configure(note: allNotes[indexPath.row])
         return cell
     }
@@ -155,7 +158,9 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
             
             if isFiltering {
                 note = filtredNotes.remove(at: indexPath.row)
+                print("1111111")
             } else {
+                print("2222222")
                 note = allNotes.remove(at: indexPath.row)
             }
             tableView.deleteRows(at: [indexPath], with: .automatic)
@@ -167,7 +172,7 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
 //MARK: - UISearchResultsUpdating
 extension NoteListViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {
-        filterCounterForSearchText(searchController.searchBar.text!)
+        filterCounterForSearchText(searchController.searchBar.text ?? "")
     }
     
     func filterCounterForSearchText(_ searchText: String) {
