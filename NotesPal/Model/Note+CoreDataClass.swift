@@ -18,6 +18,6 @@ public class Note: NSManagedObject {
     var titleDescription: String {
         var lines = text.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: .newlines)
         lines.removeFirst()
-        return "\(lastUpdated.format()) \(lines.first ?? "")" // return second line
+        return " \(lines.first ?? "")" // return second line
     }
 }

@@ -11,13 +11,15 @@ class NoteListTableViewCell: UITableViewCell {
     
     static let identifier = "NoteListTableViewCell"
 
-    let title: UILabel = {
+    private let title: UILabel = {
         let title = UILabel()
+        
         return title
     }()
 
-    let descriprion: UILabel = {
+    private let descriprion: UILabel = {
         let descriprion = UILabel()
+        
         return descriprion
     }()
     
@@ -36,7 +38,6 @@ class NoteListTableViewCell: UITableViewCell {
         title.text = note.title
         descriprion.text = note.titleDescription
     }
-
 }
 
 // MARK: - Constaints

@@ -7,16 +7,15 @@
 
 import UIKit
 
-class NoteEditingViewController: UIViewController {
+class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
 
     var note: Note!
     
     weak var delegate: NotesListDelegate?
     
-    lazy var textView: UITextView = {
+    private var textView: UITextView = {
         let textView = UITextView()
         textView.isScrollEnabled = true
-        
         return textView
     }()
     
@@ -26,6 +25,7 @@ class NoteEditingViewController: UIViewController {
         view.backgroundColor = .white
         setupNavBar()
         setupTextView()
+        setUpGesture()
         setConstraints()
     }
     
@@ -34,12 +34,15 @@ class NoteEditingViewController: UIViewController {
         textView.text = note.text
         view.addSubview(textView)
         textView.font = UIFont(name: "Arial", size: 20)
-//        textView.delegate = self  //Do I really need it?
     }
     
     private func setupNavBar() {
-        
-        
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "arrow.backward"),
+            style: .plain,
+            target: self,
+            action: #selector(finalNoteCheck)
+        )
         
         let doneButton = UIBarButtonItem(
             barButtonSystemItem: .done,
@@ -54,7 +57,14 @@ class NoteEditingViewController: UIViewController {
         )
         trashButton.tintColor = .red
         
+        navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItems = [trashButton, doneButton]
+    }
+    
+    private func setUpGesture() {
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(finalNoteCheck))
+        swipeRight.direction = .right
+        view.addGestureRecognizer(swipeRight)
     }
     
     private func showAlert() {
@@ -84,8 +94,7 @@ class NoteEditingViewController: UIViewController {
     }
     
     @objc private func doneButtonPressed() {
-//        textView.endEditing(true)
-        finalNoteCheck()
+        textView.endEditing(true)
     }
     
     @objc private func trashButtonPressed() {
@@ -99,12 +108,11 @@ class NoteEditingViewController: UIViewController {
     
     @objc func finalNoteCheck() {
         note.text = textView.text
+        
         if note.title.isEmpty {
-            print("delete Note")
             deleteNote()
         } else {
             updateTextView()
-            print("update Note")
         }
         
         navigationController?.popViewController(animated: true)

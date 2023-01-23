@@ -19,13 +19,8 @@ class NoteListViewController: UIViewController {
     
     private let searchController = UISearchController(searchResultsController: nil)
     
-    private var searchBarIsEmty: Bool {
-        guard let text = searchController.searchBar.text else { return false }
-        return text.isEmpty
-    }
-    
     private var isFiltering: Bool {
-        searchController.isActive && !searchBarIsEmty
+        searchController.isActive
     }
 
     private let plusView = PlusView()
@@ -50,8 +45,7 @@ class NoteListViewController: UIViewController {
     
     //MARK: - UISetup
     private func setupNavigationBar() {
-        title = "Notes"
-//        navigationController?.navigationBar.prefersLargeTitles = true
+        title = "NotesPal"
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
         navBarAppearance.shadowColor = .clear
@@ -73,11 +67,11 @@ class NoteListViewController: UIViewController {
     }
     
     private func setupSearchBar() {
+        navigationItem.searchController = searchController
         searchController.searchResultsUpdater = self
         searchController.showsSearchResultsController = true  //?
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search..."
-        navigationItem.searchController = searchController
         definesPresentationContext = true //?
     }
     
@@ -161,6 +155,7 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
             } else {
                 note = allNotes.remove(at: indexPath.row)
             }
+            
             tableView.deleteRows(at: [indexPath], with: .automatic)
             StorageManager.shared.delete(note)
         }
@@ -170,14 +165,12 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
 //MARK: - UISearchResultsUpdating
 extension NoteListViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {
-        filterCounterForSearchText(searchController.searchBar.text ?? "")
+        guard let text = searchController.searchBar.text else { return }
+        filterCounterForSearchText(text)
     }
     
     func filterCounterForSearchText(_ searchText: String) {
-        filtredNotes = allNotes.filter({ (notes: Note) -> Bool in
-            notes.text.lowercased().contains(searchText.lowercased())
-        })
-        
+        filtredNotes = allNotes.filter { $0.text.lowercased().contains(searchText.lowercased()) }
         tableView.reloadData()
     }
 }
