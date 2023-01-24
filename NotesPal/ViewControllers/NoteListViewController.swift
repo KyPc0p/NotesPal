@@ -13,7 +13,6 @@ protocol NotesListDelegate: AnyObject {
 }
 
 class NoteListViewController: UIViewController {
-    
     private var allNotes: [Note] = []
     private var filtredNotes: [Note] = []
     private let searchController = UISearchController(searchResultsController: nil)
@@ -48,7 +47,9 @@ class NoteListViewController: UIViewController {
         title = "NotesPal"
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
-        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: Fonts.regularFont, size: 22)!]
+        navBarAppearance.titleTextAttributes = [
+            NSAttributedString.Key.font: UIFont(name: Fonts.regularFont, size: 22)!
+        ]
         navBarAppearance.shadowColor = .clear
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -71,9 +72,9 @@ class NoteListViewController: UIViewController {
         navigationItem.searchController = searchController
         searchController.searchResultsUpdater = self
         navigationItem.hidesSearchBarWhenScrolling = false
-        searchController.showsSearchResultsController = true  //?
+        searchController.showsSearchResultsController = true
         searchController.obscuresBackgroundDuringPresentation = false
-        definesPresentationContext = true //?
+        definesPresentationContext = true
     }
     
     //MARK: - Logic functions
@@ -140,7 +141,7 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
             cell.configure(note: filtredNotes[indexPath.row])
             return cell
         }
-        
+
         cell.configure(note: allNotes[indexPath.row])
         return cell
     }
@@ -148,6 +149,7 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if isFiltering {
             goToEditNote(filtredNotes[indexPath.row])
+            self.searchController.isActive = false
         } else {
             goToEditNote(allNotes[indexPath.row])
         }
@@ -155,19 +157,20 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let note: Note
-            
-            if isFiltering {
-                note = filtredNotes.remove(at: indexPath.row)
-            } else {
-                note = allNotes.remove(at: indexPath.row)
-            }
-            
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            CoreDataManager.shared.delete(note)
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if isFiltering {
+            return false
         }
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+            if editingStyle == .delete {
+                let note: Note
+                note = allNotes.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+                CoreDataManager.shared.delete(note)
+            }
     }
 }
 

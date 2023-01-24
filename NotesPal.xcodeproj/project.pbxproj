@@ -148,8 +148,8 @@
 		79C27FB62979714D00389D03 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				79EBF587297A8DFB00CDEB3A /* DateFormatter.swift */,
 				79C27FB42979714100389D03 /* CoreDataManager.swift */,
+				79EBF587297A8DFB00CDEB3A /* DateFormatter.swift */,
 				79BE38272980264100CD8C88 /* Fonts.swift */,
 			);
 			path = Services;
