@@ -26,6 +26,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         setupNavBar()
         setupTextView()
         setUpGesture()
+        registerKeyboardNotifications()
         setConstraints()
     }
     
@@ -73,12 +74,6 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         navigationItem.rightBarButtonItems = [trashButton, doneButton]
     }
     
-    private func setUpGesture() {
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(finalNoteCheck))
-        swipeRight.direction = .right
-        view.addGestureRecognizer(swipeRight)
-    }
-    
     private func showAlert() {
         let alert = UIAlertController(
             title: "Do you want to delete this Note?",
@@ -97,6 +92,12 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         alert.addAction(cancelAction)
         alert.addAction(okAction)
         present(alert, animated: true)
+    }
+    
+    private func setUpGesture() {
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(finalNoteCheck))
+        swipeRight.direction = .right
+        view.addGestureRecognizer(swipeRight)
     }
     
     private func updateTextView() {
@@ -135,6 +136,42 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         if note.title.isEmpty {
             textView.becomeFirstResponder()
         }
+    }
+    
+    //MARK: - Notifications
+    private func registerKeyboardNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(upadateTextView),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(upadateTextView),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func upadateTextView(_ notification: Notification) {
+        let userInfo = notification.userInfo
+        let getKeyboardSize = (userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        
+        let keyboardFrame = self.view.convert(getKeyboardSize, to: view.window)
+        
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            textView.contentInset = UIEdgeInsets.zero
+        } else {
+            textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+            textView.scrollIndicatorInsets = textView.contentInset
+        }
+        textView.scrollRangeToVisible(textView.selectedRange)
+    }
+    
+    @objc func keyboardWillHide(_ notification: NSNotification) {
+//        self.textView.contentOffset = CGPoint.zero
     }
 }
 
