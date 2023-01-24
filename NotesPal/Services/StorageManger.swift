@@ -7,8 +7,8 @@
 
 import CoreData
 
-class StorageManager {
-    static let shared = StorageManager()
+class CoreDataManager {
+    static let shared = CoreDataManager()
     
     // MARK: - Core Data stack
     private let persistentContainer: NSPersistentContainer = {
@@ -42,10 +42,10 @@ class StorageManager {
         }
     }
     
-    func create() -> Note {
+    func create(with text: String = "") -> Note {
         let note = Note(context: viewContext)
         note.id = UUID()
-        note.text = ""
+        note.text = text
         note.lastUpdated = Date()
         saveContext()
         return note

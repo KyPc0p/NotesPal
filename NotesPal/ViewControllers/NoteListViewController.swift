@@ -16,7 +16,6 @@ class NoteListViewController: UIViewController {
     
     private var allNotes: [Note] = []
     private var filtredNotes: [Note] = []
-    
     private let searchController = UISearchController(searchResultsController: nil)
     
     private var isFiltering: Bool {
@@ -26,16 +25,19 @@ class NoteListViewController: UIViewController {
     private let plusView = PlusView()
     
     private let tableView: UITableView = {
-        let tableView = UITableView()
+        let tableView = UITableView(frame: CGRectZero, style: .plain)
         tableView.register(NoteListTableViewCell.self, forCellReuseIdentifier: NoteListTableViewCell.identifier)
         return tableView
     }()
+    
+    static let appFontName = "PingFang HK"
     
     //MARK: - ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         fetchNotes()
+        isEmptyCheck()
         setupNavigationBar()
         setupSearchBar()
         setupTableView()
@@ -48,6 +50,7 @@ class NoteListViewController: UIViewController {
         title = "NotesPal"
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
+        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: NoteListViewController.appFontName, size: 25)!]
         navBarAppearance.shadowColor = .clear
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -69,9 +72,9 @@ class NoteListViewController: UIViewController {
     private func setupSearchBar() {
         navigationItem.searchController = searchController
         searchController.searchResultsUpdater = self
+        navigationItem.hidesSearchBarWhenScrolling = false
         searchController.showsSearchResultsController = true  //?
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search..."
         definesPresentationContext = true //?
     }
     
@@ -88,14 +91,22 @@ class NoteListViewController: UIViewController {
     }
     
     private func createNote() -> Note {
-        let note = StorageManager.shared.create()
+        let note = CoreDataManager.shared.create()
         allNotes.insert(note, at: 0)
         tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
         return note
     }
     
+    private func isEmptyCheck() {
+        if allNotes.isEmpty {
+            let note = CoreDataManager.shared.create(with: "New Note")
+            allNotes.insert(note, at: 0)
+            tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
+        }
+    }
+    
     private func fetchNotes() {
-        StorageManager.shared.read { result in
+        CoreDataManager.shared.read { result in
             switch result {
             case .success(let notes):
                 self.allNotes = notes
@@ -121,7 +132,7 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        80
+        65
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -157,7 +168,7 @@ extension NoteListViewController: UITableViewDataSource, UITableViewDelegate {
             }
             
             tableView.deleteRows(at: [indexPath], with: .automatic)
-            StorageManager.shared.delete(note)
+            CoreDataManager.shared.delete(note)
         }
     }
 }
@@ -180,10 +191,10 @@ extension NoteListViewController {
     private func setConstraints() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
         plusView.translatesAutoresizingMaskIntoConstraints = false

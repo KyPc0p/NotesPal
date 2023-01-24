@@ -33,7 +33,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     private func setupTextView() {
         textView.text = note.text
         view.addSubview(textView)
-        textView.font = UIFont(name: "Arial", size: 20)
+        textView.font = UIFont(name: NoteListViewController.appFontName, size: 20)
     }
     
     private func setupNavBar() {
@@ -89,7 +89,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     private func updateTextView() {
         note.text = textView.text
         note.lastUpdated = Date()
-        StorageManager.shared.saveContext()
+        CoreDataManager.shared.saveContext()
         delegate?.refreshNotes()
     }
     
@@ -103,7 +103,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private func deleteNote() {
         delegate?.deleteNote(with: note.id)
-        StorageManager.shared.delete(note)
+        CoreDataManager.shared.delete(note)
     }
     
     @objc func finalNoteCheck() {

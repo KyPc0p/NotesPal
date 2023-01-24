@@ -13,12 +13,14 @@ class NoteListTableViewCell: UITableViewCell {
 
     private let title: UILabel = {
         let title = UILabel()
-        
+        title.font = UIFont(name: NoteListViewController.appFontName, size: 18)
         return title
     }()
 
     private let descriprion: UILabel = {
         let descriprion = UILabel()
+        descriprion.font = UIFont(name: NoteListViewController.appFontName, size: 16)
+        descriprion.textColor = .darkGray
         
         return descriprion
     }()
@@ -45,14 +47,14 @@ extension NoteListTableViewCell {
     private func setConstraints() {
         title.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            title.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            title.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             title.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
         ])
         
         descriprion.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            descriprion.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 5),
+            descriprion.topAnchor.constraint(equalTo: title.bottomAnchor),
             descriprion.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             descriprion.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
         ])
