@@ -13,19 +13,20 @@ class NoteListTableViewCell: UITableViewCell {
 
     private let title: UILabel = {
         let title = UILabel()
-        title.font = UIFont(name: NoteListViewController.mediumFont, size: 18)
+        title.font = UIFont(name: Fonts.mediumFont, size: 18)
         title.textColor = UIColor(named: "textColor")
         return title
     }()
 
     private let descriprion: UILabel = {
         let descriprion = UILabel()
-        descriprion.font = UIFont(name: NoteListViewController.regularFont, size: 16)
+        descriprion.font = UIFont(name: Fonts.regularFont, size: 16)
         descriprion.textColor = UIColor(named: "descriptionColor")
         
         return descriprion
     }()
     
+    //MARK: - init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         addSubview(title)
@@ -37,13 +38,14 @@ class NoteListTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    //MARK: - Configure
     func configure(note: Note) {
         title.text = note.title
         descriprion.text = note.titleDescription
     }
 }
 
-// MARK: - Constaints
+// MARK: - Consrtaints
 extension NoteListTableViewCell {
     private func setConstraints() {
         title.translatesAutoresizingMaskIntoConstraints = false

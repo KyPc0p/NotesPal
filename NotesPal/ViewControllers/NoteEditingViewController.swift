@@ -7,10 +7,10 @@
 
 import UIKit
 
-class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
+class NoteEditingViewController: UIViewController {
 
     var note: Note!
-    
+    private var isDone = false
     weak var delegate: NotesListDelegate?
     
     private var textView: UITextView = {
@@ -19,10 +19,9 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         return textView
     }()
     
-    //MARK: - ViewDidLoad
+    //MARK: - ViewDidLoad/VCLife
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         setupNavBar()
         setupTextView()
         setUpGesture()
@@ -30,21 +29,24 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         setConstraints()
     }
     
-    //MARK: - Functions
+    override func viewDidAppear(_ animated: Bool) {
+        if note.title.isEmpty {
+            textView.becomeFirstResponder()
+        }
+    }
+    
+    //MARK: - UISetup 
     private func setupTextView() {
         textView.text = note.text
-        textView.tintColor = .systemRed
+        textView.textColor = UIColor(named: "descriptionColor")
+        textView.font = UIFont(name: Fonts.regularFont, size: 18)
         textView.autocorrectionType = .no
+        textView.tintColor = .systemRed
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 10)
         textView.dataDetectorTypes = [.link, .phoneNumber]
-        
-//        textView.isEditable = false //что делать?
         textView.isSelectable = true
-        
         textView.allowsEditingTextAttributes = true
-        textView.textColor = UIColor(named: "descriptionColor")
         view.addSubview(textView)
-        textView.font = UIFont(name: NoteListViewController.regularFont, size: 20)
     }
     
     private func setupNavBar() {
@@ -57,24 +59,26 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         backButton.tintColor = UIColor(named: "textColor")
         
         let doneButton = UIBarButtonItem(
-            barButtonSystemItem: .done,
+            title: "Done",
+            style: .plain,
             target: self,
             action: #selector(doneButtonPressed)
         )
         doneButton.tintColor = UIColor(named: "textColor")
+        doneButton.title = isDone ? "Edit" : "Done"
         
         let trashButton = UIBarButtonItem(
             barButtonSystemItem: .trash ,
             target: self,
-            action: #selector(trashButtonPressed)
+            action: #selector(showTrashButtonAlert)
         )
         trashButton.tintColor = .systemRed
-        
         navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItems = [trashButton, doneButton]
     }
     
-    private func showAlert() {
+    //MARK: - AlertController
+    @objc private func showTrashButtonAlert() {
         let alert = UIAlertController(
             title: "Do you want to delete this Note?",
             message: nil,
@@ -94,12 +98,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         present(alert, animated: true)
     }
     
-    private func setUpGesture() {
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(finalNoteCheck))
-        swipeRight.direction = .right
-        view.addGestureRecognizer(swipeRight)
-    }
-    
+    //MARK: - Logic fucntions
     private func updateTextView() {
         note.text = textView.text
         note.lastUpdated = Date()
@@ -108,19 +107,19 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc private func doneButtonPressed() {
+        isDone.toggle()
+        DispatchQueue.main.async {
+            self.setupNavBar()
+        }
+        textView.isEditable.toggle()
         textView.endEditing(true)
     }
-    
-    @objc private func trashButtonPressed() {
-        showAlert()
-    }
-    
     private func deleteNote() {
         delegate?.deleteNote(with: note.id)
         CoreDataManager.shared.delete(note)
     }
     
-    @objc func finalNoteCheck() {
+    @objc private func finalNoteCheck() {
         note.text = textView.text
         
         if note.title.isEmpty {
@@ -132,10 +131,11 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         navigationController?.popViewController(animated: true)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        if note.title.isEmpty {
-            textView.becomeFirstResponder()
-        }
+    //MARK: - Gestures
+    private func setUpGesture() {
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(finalNoteCheck))
+        swipeRight.direction = .right
+        view.addGestureRecognizer(swipeRight)
     }
     
     //MARK: - Notifications
@@ -146,7 +146,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
             name: UIResponder.keyboardWillShowNotification,
             object: nil
         )
-        
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(upadateTextView),
@@ -158,9 +158,9 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc private func upadateTextView(_ notification: Notification) {
         let userInfo = notification.userInfo
         let getKeyboardSize = (userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-        
+
         let keyboardFrame = self.view.convert(getKeyboardSize, to: view.window)
-        
+
         if notification.name == UIResponder.keyboardWillHideNotification {
             textView.contentInset = UIEdgeInsets.zero
         } else {
@@ -170,13 +170,10 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
         textView.scrollRangeToVisible(textView.selectedRange)
     }
     
-    @objc func keyboardWillHide(_ notification: NSNotification) {
-//        self.textView.contentOffset = CGPoint.zero
+    override func viewWillDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-}
-
-extension NoteEditingViewController: UITextViewDelegate {
-    
 }
 
 //MARK: - Constraints

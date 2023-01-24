@@ -30,9 +30,6 @@ class NoteListViewController: UIViewController {
         return tableView
     }()
     
-    static let regularFont = "PingFang HK"
-    static let mediumFont = "PingFang HK Medium"
-    
     //MARK: - ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,11 +48,10 @@ class NoteListViewController: UIViewController {
         title = "NotesPal"
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
-        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: NoteListViewController.regularFont, size: 25)!, ]
+        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: Fonts.regularFont, size: 22)!]
         navBarAppearance.shadowColor = .clear
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
-        navigationController?.navigationBar.tintColor = .black  //?
     }
     
     private func setupTableView() {
@@ -80,7 +76,18 @@ class NoteListViewController: UIViewController {
         definesPresentationContext = true //?
     }
     
-    //MARK: - Functions
+    //MARK: - Logic functions
+    private func fetchNotes() {
+        CoreDataManager.shared.read { result in
+            switch result {
+            case .success(let notes):
+                self.allNotes = notes
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     @objc private func plusButtonPressed() {
         goToEditNote(createNote())
     }
@@ -104,17 +111,6 @@ class NoteListViewController: UIViewController {
             let note = CoreDataManager.shared.create(with: "New Note")
             allNotes.insert(note, at: 0)
             tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
-        }
-    }
-    
-    private func fetchNotes() {
-        CoreDataManager.shared.read { result in
-            switch result {
-            case .success(let notes):
-                self.allNotes = notes
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
         }
     }
     
