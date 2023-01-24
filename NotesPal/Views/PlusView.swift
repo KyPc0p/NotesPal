@@ -41,7 +41,7 @@ class PlusView: UIView {
 
         let rect = CGRect(x: 0, y: 0, width: 60, height: 60)
         
-        context.setFillColor(UIColor.red.cgColor)
+        context.setFillColor(UIColor.systemRed.cgColor)
         context.addEllipse(in: rect)
         context.fillEllipse(in: rect)
     }

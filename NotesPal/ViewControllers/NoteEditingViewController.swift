@@ -32,6 +32,16 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     //MARK: - Functions
     private func setupTextView() {
         textView.text = note.text
+        textView.tintColor = .systemRed
+        textView.autocorrectionType = .no
+        textView.textContainerInset = UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 10)
+        textView.dataDetectorTypes = [.link, .phoneNumber]
+        
+//        textView.isEditable = false //что делать?
+        textView.isSelectable = true
+        
+        textView.allowsEditingTextAttributes = true
+        textView.textColor = UIColor(named: "descriptionColor")
         view.addSubview(textView)
         textView.font = UIFont(name: NoteListViewController.regularFont, size: 20)
     }
@@ -43,19 +53,21 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
             target: self,
             action: #selector(finalNoteCheck)
         )
+        backButton.tintColor = UIColor(named: "textColor")
         
         let doneButton = UIBarButtonItem(
             barButtonSystemItem: .done,
             target: self,
             action: #selector(doneButtonPressed)
         )
+        doneButton.tintColor = UIColor(named: "textColor")
         
         let trashButton = UIBarButtonItem(
             barButtonSystemItem: .trash ,
             target: self,
             action: #selector(trashButtonPressed)
         )
-        trashButton.tintColor = .red
+        trashButton.tintColor = .systemRed
         
         navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItems = [trashButton, doneButton]
@@ -69,10 +81,11 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private func showAlert() {
         let alert = UIAlertController(
-            title: "Deleting Note",
-            message: "Do you want to delete this Note?",
+            title: "Do you want to delete this Note?",
+            message: nil,
             preferredStyle: .alert
         )
+        alert.view.tintColor = UIColor(named: "textColor")
         
         let okAction = UIAlertAction(title: "OK", style: .default) { _ in
             self.deleteNote()
@@ -135,9 +148,9 @@ extension NoteEditingViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             textView.topAnchor.constraint(equalTo: view.topAnchor),
-            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 16)
+            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 }

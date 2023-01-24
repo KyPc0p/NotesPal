@@ -36,7 +36,7 @@ class NoteListViewController: UIViewController {
     //MARK: - ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(named: "backgroundColor")
         fetchNotes()
         isEmptyCheck()
         setupNavigationBar()
@@ -51,11 +51,11 @@ class NoteListViewController: UIViewController {
         title = "NotesPal"
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
-        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: NoteListViewController.regularFont, size: 25)!]
+        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: NoteListViewController.regularFont, size: 25)!, ]
         navBarAppearance.shadowColor = .clear
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = .black  //?
     }
     
     private func setupTableView() {
@@ -71,6 +71,7 @@ class NoteListViewController: UIViewController {
     }
     
     private func setupSearchBar() {
+        searchController.searchBar.tintColor = UIColor(named: "textColor")
         navigationItem.searchController = searchController
         searchController.searchResultsUpdater = self
         navigationItem.hidesSearchBarWhenScrolling = false
