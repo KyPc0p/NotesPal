@@ -33,7 +33,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     private func setupTextView() {
         textView.text = note.text
         view.addSubview(textView)
-        textView.font = UIFont(name: NoteListViewController.appFontName, size: 20)
+        textView.font = UIFont(name: NoteListViewController.regularFont, size: 20)
     }
     
     private func setupNavBar() {
@@ -69,7 +69,7 @@ class NoteEditingViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private func showAlert() {
         let alert = UIAlertController(
-            title: "Delete Note",
+            title: "Deleting Note",
             message: "Do you want to delete this Note?",
             preferredStyle: .alert
         )
@@ -137,7 +137,7 @@ extension NoteEditingViewController {
             textView.topAnchor.constraint(equalTo: view.topAnchor),
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 10)
+            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 16)
         ])
     }
 }

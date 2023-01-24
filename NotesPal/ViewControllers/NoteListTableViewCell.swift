@@ -13,13 +13,13 @@ class NoteListTableViewCell: UITableViewCell {
 
     private let title: UILabel = {
         let title = UILabel()
-        title.font = UIFont(name: NoteListViewController.appFontName, size: 18)
+        title.font = UIFont(name: NoteListViewController.mediumFont, size: 18)
         return title
     }()
 
     private let descriprion: UILabel = {
         let descriprion = UILabel()
-        descriprion.font = UIFont(name: NoteListViewController.appFontName, size: 16)
+        descriprion.font = UIFont(name: NoteListViewController.regularFont, size: 16)
         descriprion.textColor = .darkGray
         
         return descriprion

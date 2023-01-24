@@ -30,7 +30,8 @@ class NoteListViewController: UIViewController {
         return tableView
     }()
     
-    static let appFontName = "PingFang HK"
+    static let regularFont = "PingFang HK"
+    static let mediumFont = "PingFang HK Medium"
     
     //MARK: - ViewDidLoad
     override func viewDidLoad() {
@@ -50,7 +51,7 @@ class NoteListViewController: UIViewController {
         title = "NotesPal"
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
-        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: NoteListViewController.appFontName, size: 25)!]
+        navBarAppearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont(name: NoteListViewController.regularFont, size: 25)!]
         navBarAppearance.shadowColor = .clear
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
