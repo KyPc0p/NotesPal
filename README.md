@@ -1,7 +1,7 @@
 # NotesPal 🗒️
 ## CFT test
 
-<img src="https://user-images.githubusercontent.com/79677367/220838240-8da59bbc-539c-4fa2-ad26-0fe98619596b.png" width="200"> <img src="https://user-images.githubusercontent.com/79677367/220840397-ad127ceb-40f9-40e2-8498-efb4d919325a.png" width="200"> <img src="https://user-images.githubusercontent.com/79677367/220840405-867438ab-5547-46c2-9e36-97a5b1586158.png" width="200"> 
+<img src="https://user-images.githubusercontent.com/79677367/220838240-8da59bbc-539c-4fa2-ad26-0fe98619596b.png" width="200">   <img src="https://user-images.githubusercontent.com/79677367/220840397-ad127ceb-40f9-40e2-8498-efb4d919325a.png" width="200">   <img src="https://user-images.githubusercontent.com/79677367/220840405-867438ab-5547-46c2-9e36-97a5b1586158.png" width="200">   <img src="https://user-images.githubusercontent.com/79677367/220841165-2d47f934-b7e4-47d3-8c69-a8778c3dfc95.png" width="200">
 
 ## Возможности:
 * Создание одной простейшей заметки только с текстом
